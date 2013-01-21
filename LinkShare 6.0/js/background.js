@@ -208,37 +208,30 @@ $.ajax({
    type: "get",
    url: hostadd+"favurl/newnum",
    dataType:"json",
-   success: getUnreadMsgCountHandler
+   success:function(data){
+	   if (data.newfavurlnum)
+	   {
+	     unreadCount=parseInt(data.newfavurlnum);
+	     updateIcon();
+	   }
+	}	
 });
-
-
-function getUnreadMsgCountHandler(data)
-{
-  if (data.newfavurlnum)
-  {
-    unreadCount=parseInt(data.newfavurlnum);
-    updateIcon();
-  }
-
-}
 
 }
 
 function getMsgs()
 {
-    $.get(
-    hostadd+"favurl/pending",
-    getMsgshandler,
-    "json");
-
-function getMsgshandler(data)
-{
-  if(data)
-  {
-   extractJson(data);
-  }
-
-}
+	
+	$.ajax({
+	type: "get",
+    url:hostadd+"favurl/pending",
+    dataType:"json",
+    success:function(data)
+    {
+    	if(data)
+    	   extractJson(data);
+    }
+	});
 
 }
 
@@ -286,27 +279,23 @@ $.ajax({
    type: "get",
    url: hostadd+"friend/available",
    dataType:"text",
-    async:false,
-   success: getFriendsHandler
-});
-
-function getFriendsHandler(data)
-{
-    if(data)
-  {
-    if (data==="true")
-    {
-    hasfriends=true;
-    }
-   
-   if (data==="false")
-    {
-    hasfriends=false;
-    }
-    
-
-  }
-}
+   async:false,
+   success: function(data)
+   {
+	    if(data)
+	    {
+	      if (data==="true")
+	      {
+	      hasfriends=true;
+	      }
+	     
+	     if (data==="false")
+	      {
+	      hasfriends=false;
+	      }     
+	    }
+   	}
+	});
 
 }
 
@@ -320,42 +309,38 @@ $.ajax({
    data:{ "id": sid,"channel":channel},
    url: hostadd+"favurl/channel",
    dataType:"json",
-   success: updateHandler
+   success: function(json)
+   {
+	   if(json)
+	   {
+	    json=json.FavURLNotify;
+	    var nickname=json.nickname;
+	    var surl=json.url;
+	    var sendtime=getLocalSendTime(json.sendtime);
+	    sendtime=jQuery.timeago(sendtime);  
+	    var avatarurl=json.avatarURL;
+
+	   if (avatarurl==null)
+	     avatarurl=host+'images/mystery-man.jpg';
+
+	   var userid=json.fromid;
+
+	    console.log("updatehandler");
+
+	     chrome.tabs.create({url: surl,active :false},function(tab){
+	     
+	     chrome.tabs.executeScript(tab.id,{file: 'js/ReceiveMSG.js'},function()
+	     {
+	     chrome.tabs.sendMessage(tab.id, {"status": "success","nickname":nickname,"sendtime":sendtime,"avatarurl":avatarurl,"userid":userid,});
+	       });
+	       
+	     });
+	     
+	     console.log("tab created"); 
+	   }
+   }
 });
 
-function updateHandler(json)
-{
-  //var json=JSON.parse(json);
-  if(json)
-  {
-    json=json.FavURLNotify;
-   var nickname=json.nickname;
-   var surl=json.url;
-   var status=json.status;
-   var sendtime=getLocalSendTime(json.sendtime);
-  sendtime=jQuery.timeago(sendtime);  
-  var avatarurl=json.avatarURL;
-
-  if (avatarurl==null)
-    avatarurl=host+'images/mystery-man.jpg';
-
-
-  var userid=json.fromid;
-
-   console.log("updatehandler");
-
-    chrome.tabs.create({url: surl,active :false},function(tab){
-    
-    chrome.tabs.executeScript(tab.id,{file: 'js/ReceiveMSG.js'},function()
-    {
-    chrome.tabs.sendMessage(tab.id, {"status": "success","nickname":nickname,"sendtime":sendtime,"avatarurl":avatarurl,"userid":userid,});
-      });
-      
-    }); 
-   
-    console.log("tab created"); 
-  }
-}
 }
 
 function getLocalSendTime(sendtime)
@@ -376,7 +361,7 @@ function setupChannelTask()
   else
   {
     setOfflineIcon();
-    setNotifyPopup("msgg.html");
+    setNotifyPopup("discongoogle.html");
     googleCheck=setInterval(connectGoogle,10000);
   }
   
@@ -394,7 +379,7 @@ if (channelToken==null)
    type: "post",
    url: hostadd+"service/channel",
    datatype:"text",
-    async:false,
+   async:false,
    success: setupChannelHandler
 });
 
@@ -424,6 +409,49 @@ function setupChannelCon(channelToken)
 
 }
 
+function channelonOpened()
+{
+  console.log("channel opened");
+  isErrProcessing=false;
+  isGoogleCon=false;
+}
+
+
+function channelonMessage(msg)
+{
+  var msg=JSON.parse(msg.data);
+
+  var FavURLShows=msg.FavURLShows;
+  var newfavurlnum=msg.newfavurlnum;
+   var newgroups=msg.groups;
+
+if (FavURLShows)
+{
+  console.log("channel msg: FavURLs");
+  extractJson(msg);
+
+}
+else
+{
+  if (newfavurlnum)
+  {
+    console.log("channel msg: unreadmsg"+newfavurlnum);
+   unreadCount=parseInt(newfavurlnum);
+   updateIcon();
+  }
+  else
+  {
+    if (newgroups)
+    {
+    console.log("channel msg: newgroups");
+    saveGroups(newgroups);
+    }
+
+  }
+}
+
+}
+
 var isErrProcessing=false;
 
 function channelonError(err)
@@ -431,69 +459,69 @@ function channelonError(err)
 console.log("channel error code: "+ err.code);
 var code =err.code;
 
-if (code==0||code==-1)
+if (code==401|| code==500)
 {
-if (window.navigator.onLine==true) { 
-
-  channelSetupErrHandler();
-}else
-{
-  disConnectHandler();
+    localStorage.removeItem("channelToken");
 }
+
+channelErrHandler();
 
 }
 
-if (code==400 || code==401|| code==500)
+function channelonClose()
 {
-  if (code==401|| code==500)
-  {
-      localStorage.removeItem("channelToken");
-  }
-
-    if (window.navigator.onLine==true)
-    {
-      channelSetupErrHandler();
-    }
-    else
-    {
-      disConnectHandler();
-    }
-
+  console.log("channel closed");
 }
 
+function channelErrHandler()
+{
+	if (window.navigator.onLine==true)
+	{ 
+		  if (!isErrProcessing)
+		  {
+		    console.log("channel setup error");
+		    isErrProcessing=true;
+		    closechannel();
+
+		  ping();
+
+		  if (isGoogleCon) 
+		  {
+		      isGoogleCon=false;
+		      resetupchannel();
+		  }
+		  else
+		  {
+		    setOfflineIcon();
+		    setNotifyPopup("discongoogle.html");
+		    googleCheck=setInterval(connectGoogle,10000);
+		  }
+
+		  }
+	}
+	else
+	{
+		  if (!isErrProcessing)
+		  {
+		  isErrProcessing=true;
+		  console.log("network disconnect");
+
+		  setOfflineIcon();  
+
+		  closechannel();
+		  setNotifyPopup("disconnect.html");
+		  conCheck=setInterval(reConnect,10000);
+		  }
+	}
 }
 
 var googleCheck;
-function channelSetupErrHandler()
-{
-  if (!isErrProcessing)
-  {
-    console.log("channelSetupErrHandler");
-    isErrProcessing=true;
-    closechannel();
-
-  ping();
-
-  if (isGoogleCon) 
-  {
-      isGoogleCon=false;
-      resetupchannel();
-  }
-  else
-  {
-    setOfflineIcon();
-    setNotifyPopup("msgg.html");
-    googleCheck=setInterval(connectGoogle,10000);
-  }
-
-  }
-}
 
 function setNotifyPopup(page)
 {
   setbuttonnone();
   chrome.tabs.query({}, function(tabs){
-
+	
     for (var i=0;i<tabs.length;i++)
     {
     tab=tabs[i];
@@ -506,6 +534,23 @@ function setNotifyPopup(page)
     }
    });
 
+}
+
+function removePopup()
+{
+    chrome.tabs.query({}, function(tabs){
+
+    for (var i=0;i<tabs.length;i++)
+    {
+    tab=tabs[i];
+    chrome.browserAction.setPopup({
+    tabId: tab.id,
+    popup: ''
+    });
+
+    chrome.tabs.update(tab.id,{});
+    }
+   });
 }
 
 function connectGoogle()
@@ -556,22 +601,6 @@ function resetupchannel()
       }
 }
 
-function disConnectHandler()
-{ 
-  if (!isErrProcessing)
-  {
-  isErrProcessing=true;
-  console.log("network disConnectHandler");
-
-  setOfflineIcon();  
-
-  closechannel();
-  setNotifyPopup("msg.html");
-  conCheck=setInterval(reConnect,10000);
-  }
-  
-}
-
 var conCheck;
 
 function reConnect()
@@ -586,28 +615,7 @@ function reConnect()
   }
 }
 
-function removePopup()
-{
-    chrome.tabs.query({}, function(tabs){
 
-    for (var i=0;i<tabs.length;i++)
-    {
-    tab=tabs[i];
-    chrome.browserAction.setPopup({
-    tabId: tab.id,
-    popup: ''
-    });
-
-    chrome.tabs.update(tab.id,{});
-    }
-   });
-}
-
-
-function channelonClose()
-{
-  console.log("channel close");
-}
 
 function closechannel()
 {
@@ -618,70 +626,32 @@ function closechannel()
   
 }
 
-function channelonOpened()
-{
-  console.log("channel opened");
-  isErrProcessing=false;
-  isGoogleCon=false;
-}
 
-
-function channelonMessage(msg)
-{
-  var msg=JSON.parse(msg.data);
-
-  var FavURLShows=msg.FavURLShows;
-  var newfavurlnum=msg.newfavurlnum;
-   var newgroups=msg.groups;
-
-if (FavURLShows)
-{
-  console.log("channel msg: FavURLs");
-  extractJson(msg);
-
-}
-else
-{
-  if (newfavurlnum)
-  {
-    console.log("channel msg: unreadmsg"+newfavurlnum);
-   unreadCount=parseInt(newfavurlnum);
-   updateIcon();
-  }
-  else
-  {
-    if (newgroups)
-    {
-    console.log("channel msg: newgroups");
-    saveGroups(newgroups);
-    }
-
-  }
-}
-
-}
-
-Date.prototype.format = function(format){ 
-var o = { 
-"M+" : this.getMonth()+1, //month 
-"d+" : this.getDate(), //day 
-"h+" : this.getHours(), //hour 
-"m+" : this.getMinutes(), //minute 
-"s+" : this.getSeconds(), //second 
-"q+" : Math.floor((this.getMonth()+3)/3), //quarter 
-"S" : this.getMilliseconds() //millisecond 
-} 
-
-if(/(y+)/.test(format)) { 
-format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
-} 
-
-for(var k in o) { 
-if(new RegExp("("+ k +")").test(format)) { 
-format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length)); 
-} 
-} 
-return format; 
+Date.prototype.format = function(format)
+{ 
+	var o = 
+	{ 
+	"M+" : this.getMonth()+1, //month 
+	"d+" : this.getDate(), //day 
+	"h+" : this.getHours(), //hour 
+	"m+" : this.getMinutes(), //minute 
+	"s+" : this.getSeconds(), //second 
+	"q+" : Math.floor((this.getMonth()+3)/3), //quarter 
+	"S" : this.getMilliseconds() //millisecond 
+	} 
+	
+	if(/(y+)/.test(format)) 
+	{ 
+	format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
+	} 
+	
+	for(var k in o) { 
+		if(new RegExp("("+ k +")").test(format)) 
+		{ 
+		format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length)); 
+		} 
+	} 
+	return format; 
 } 
 
 function getSendGroups()
@@ -705,7 +675,7 @@ if (groupsstring!=null)
     if (status==3)
     {
         sendgroupids=sendgroupids+id+"|"; 
-     j=j+1;
+        j=j+1;
    }
    }
 
@@ -714,79 +684,6 @@ if (groupsstring!=null)
 
 return null;
 
-}
-
-
-function send(tab)
-{
-
-    if (window.navigator.onLine==true) 
-  { 
-    recheck();
-    if (hasfriends)
-    {    
-      var tabid=tab.id;
-
-      surl=tab.url;
-      surltitle=tab.title;
-      siconurl=tab.favIconUrl;
-    	  
-      var sendgroupids=getSendGroups();
-
-      if (isValidURL(surl))
-      {
-       var toall=localStorage["toall"];
-      
-       if(toall==null)
-        {
-          toall=TOALL;
-        }
-       
-       var tome=localStorage["tome"];
-       
-       if(tome==null)
-        {
-    	   tome=TOME;
-        }
-       
-        chrome.tabs.executeScript(tabid,{file: 'js/SendMSG.js'});
-        sendurl(tome,toall,sendgroupids,surl,tabid);
-      }
-    }
-    else
-    {
-       chrome.tabs.create({url: "options.html"});
-    }
-  }
-  else
-  {
-    disConnectHandler();
-  }
-  
-function isValidURL(s) {
-    return (/^https?\:/i).test(s);
-}
-
-function sendurl(tome,toall,groupids,surl,tabid)
-{
-
- $.ajax({
-    type: "post",
-    data:{"tome":tome, "toall":toall,"groupids":groupids,"url":surl, "tabid":tabid, "sendtime":getUTCSendTime(), "urltitle":surltitle, "iconurl":siconurl},
-    url: hostadd+"favurl/send",
-    datatype:"text",
-    statusCode: 
-    { 
-      404:notFoundHandler
-    },
-    success: sendhandler
-});
-
-} 
-
-function notFoundHandler()
-{
-    chrome.tabs.sendMessage(tabid, {"status": "notFound"});
 }
 
 function getUTCSendTime()
@@ -800,11 +697,85 @@ function getUTCSendTime()
   return sendtime;
 }
 
-function sendhandler(data)
-{
-  var tabid=parseInt(data);
-  console.log("send done:"+tabid);
-  chrome.tabs.sendMessage(tabid, {"status": "sentsuccess"});
+function isValidURL(s) {
+    return (/^https?\:/i).test(s);
 }
 
+function send(tab)
+{
+
+   if (window.navigator.onLine==true) 
+   { 
+	   recheck();
+	   var surl=tab.url;
+	   if (isValidURL(surl))
+	   {       	
+		   if (hasfriends)
+	      {
+		      var tabid=tab.id;
+		      var sendgroupids=undefined;
+		      var surltitle=tab.title;
+		      var siconurl=tab.favIconUrl;
+		      var toall=localStorage["toall"];
+		      
+		       if(toall==null)
+		        {
+		          toall=TOALL;
+		        }
+		       
+		       if (!toall)
+		 	      sendgroupids=getSendGroups();
+		    	   
+		       var tome=localStorage["tome"];
+		       
+		       if(tome==null)
+		        {
+		    	   tome=TOME;
+		        }
+		       
+		       if(!toall&&!tome&&sendgroupids.length<=0)
+		    	   {
+		    	   
+		    	   }
+		       else
+		    	   {
+			        chrome.tabs.executeScript(tabid,{file: 'js/SendMSG.js'});
+			        sendURLRequest(tome,toall,sendgroupids,surl,tabid,surltitle,siconurl);
+		    	   }
+	      }
+	    }
+	    else
+	    {
+	       chrome.tabs.create({url: "options.html"});
+	    }
+    }
+	else
+	{
+	    disConnectHandler();
+	}
+  
+	function sendURLRequest(tome,toall,groupids,surl,tabid,urltitle,iconurl)
+	{
+	
+	 $.ajax({
+	    type: "post",
+	    data:{"tome":tome, "toall":toall,"groupids":groupids,"url":surl, "tabid":tabid, "sendtime":getUTCSendTime(), "urltitle":urltitle, "iconurl":iconurl},
+	    url: hostadd+"favurl/send",
+	    datatype:"text",
+	    statusCode: 
+	    { 
+	      404:function()
+	      {
+	    	  chrome.tabs.sendMessage(tabid, {"status": "notFound"});
+	      }
+	    },
+	    success: function(data)
+	    {
+	    	var tabid=parseInt(data);
+	    	console.log("send done:"+tabid);
+	    	chrome.tabs.sendMessage(tabid, {"status": "sentsuccess"});
+	    }
+	 });
+	
+	} 
 }
