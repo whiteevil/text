@@ -1,0 +1,29 @@
+﻿{
+"manifest_version": 2,
+"name": "Chrome to Chrome",
+"version": "1.0",
+"description": "Chrome to Chrome",
+"background" : { "page": "background.html" },
+"permissions": [
+"cookies",
+"http://*.google.com/", 
+"http://*/*", 
+"https://*/*",
+ "tabs",
+"https://*.google.com/"
+],
+"options_page": "options.html",
+"browser_action": 
+	{
+	"default_icon": "images/gmail_not_logged_in.png"
+  	}
+,
+"content_scripts":[
+    {
+        "matches":["http://192.168.1.102:8888/home.html"],
+        "js":["js/content.js"],    
+        "all_frames":true
+    }
+],
+"content_security_policy": "script-src 'self' 'unsafe-eval' https://talkgadget.google.com https://chromeevil2012.appspot.com; object-src 'self'"
+}

@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<title>Tsahaylu Chrome Extension Options</title>
+		<link rel="stylesheet" type="text/css" href="/css/options.css">
+		<script src="/js/jquery-1.8.3.min.js"></script>
+		<script type="text/javascript" src="js/utils.js"></script>
+		<script type="text/javascript" src="/js/options.js"></script>
+	</head>
+	<body>
+		<div id="content">
+			<div id="header">
+				<img src="/images/icon.jpg" height=100px  width=100px>
+			</div>
+			<div id="content-inner-container">
+				<h2>OPTIONS</h2>
+				<div >				
+					<h3>Current User: </h3>
+					<ul class="user_info">
+						<li><a id="user_link" target="_blank"><img id="user_avatar" height=50px  width=50px title="Go to User page"/></a></li>
+						<li><span>Email:</span><label id="email"></label></li>
+						<li><span>Nickname:</span><label  id="nickname"></label></li>
+						<li><a href="###" id="signout">Signout</a></li>
+					</ul>
+				</div>
+				<div>
+					<h3>General:</h3>
+					<ul>
+						<li><span class="fieldlabel" >Max tab number:</span><input type="text" id="maxtabnumber" tabindex="1"></li>
+						<li><input type="checkbox" class="ccme_check" title="Send a copy to your new list!" /><label>CC to Me</label></li>
+						<li><input type="checkbox" class="toall_check" title="Send link to all your friends!" /><label >Send To All My Friends</label></li>				
+					</ul>
+				</div>
+				<div>
+					<h3>Select Send Groups:</h3>
+                	<ul id="group_box">
+						
+					</ul>
+				</div>    
+			</div>
+		</div>
+		<div id="copyright">&copy; 2013 All Rights Reserverd</div>
+	</body>
+</html>
