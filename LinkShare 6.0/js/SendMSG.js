@@ -521,6 +521,16 @@ else
 			this.updateVisibleElements();
 		},
 		
+		noFriends : function()
+		{
+			var self = this;
+			this.displayMessage("You didn't select any friends to send, please change it in options page.");
+			this.showButton('Close', null, function(){
+			self.hide();
+			}, true);
+			this.updateVisibleElements();
+		},
+		
 		// 
 		isTagsEditorOpen: function(){
 			return (this.isShowingTagsEditor === true);
@@ -708,6 +718,11 @@ else
 				// TODO : Need to display X-Error in an alert
 				this.sendoverlay.notFound();
 			}
+			else if(response.status == "noFriends"){
+				// Tried to use a bookmarklet that was created for a different account
+				// TODO : Need to display X-Error in an alert
+				this.sendoverlay.noFriends();
+			}
 		},
 				
 		send : function()
@@ -733,7 +748,7 @@ else
 		{	
 			var self = this;
 
-			this.sendoverlay.displayMessage('Saving Tags…');
+			this.sendoverlay.displayMessage('Saving Tags');
 			this.sendoverlay.showButton(false);
 
 			this.savingTags = true;

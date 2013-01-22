@@ -72,10 +72,6 @@ function restore_options() {
    displayGroups();  
 }
 
-var toBool = function(str) {
-	if ("false" === str) return false;
-	if ("true" === str) return true;
-};
 
 function displayGroups()
 {

@@ -716,7 +716,7 @@ function send(tab)
 		      var sendgroupids=undefined;
 		      var surltitle=tab.title;
 		      var siconurl=tab.favIconUrl;
-		      var toall=localStorage["toall"];
+		      var toall=toBool(localStorage["toall"]);
 		      
 		       if(toall==null)
 		        {
@@ -726,20 +726,22 @@ function send(tab)
 		       if (!toall)
 		 	      sendgroupids=getSendGroups();
 		    	   
-		       var tome=localStorage["tome"];
+		       var tome=toBool(localStorage["tome"]);
 		       
 		       if(tome==null)
 		        {
 		    	   tome=TOME;
 		        }
 		       
+		       chrome.tabs.executeScript(tabid,{file: 'js/SendMSG.js'});
+		        
 		       if(!toall&&!tome&&sendgroupids.length<=0)
 		    	   {
-		    	   
+		    	   chrome.tabs.sendMessage(tabid, {"status": "noFriends"});
 		    	   }
 		       else
 		    	   {
-			        chrome.tabs.executeScript(tabid,{file: 'js/SendMSG.js'});
+
 			        sendURLRequest(tome,toall,sendgroupids,surl,tabid,surltitle,siconurl);
 		    	   }
 	      }

@@ -28,6 +28,11 @@ Array.prototype.remove=function(dx)
 　　this.length-=1;
 }
 
+var toBool = function(str) {
+	if ("false" === str) return false;
+	if ("true" === str) return true;
+};
+
 function getGroups()
 {
 
