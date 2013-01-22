@@ -58,11 +58,32 @@ function restore_options() {
    if(maxnumber==null)
     {
       maxnumber=MAXTABNUMBER;
+      localStorage["maxtabnumber"]=maxnumber;
     }
    
    $('#maxtabnumber').val(maxnumber);
-   $('.ccme_check')[0].checked = toBool(localStorage['tome']);
-   $('.toall_check')[0].checked = toBool(localStorage['toall']);
+   
+   var tome;
+   if(localStorage['tome'])
+	   tome = toBool(localStorage['tome']);
+   else
+	   {
+	   tome=TOME;
+	   localStorage['tome']=tome;
+	   }
+	   
+	   $('.ccme_check')[0].checked=tome;
+   
+	   var toall;
+	   if(localStorage['toall'])
+		   toall = toBool(localStorage['toall']);
+	   else
+		   {
+		   toall=TOALL;
+		   localStorage['toall']=toall;
+		   }   
+   
+	   $('.toall_check')[0].checked = toall;
    
    addGroupCheckEvent();	
    addCCmeCheckEvent();

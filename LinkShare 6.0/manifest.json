@@ -20,7 +20,7 @@
 ,
 "content_scripts":[
     {
-        "matches":["http://192.168.1.102:8888/home.html"],
+        "matches":["http://localhost:8888/login.html","http://localhost:8888/home.html"],
         "js":["js/content.js"],    
         "all_frames":true
     }

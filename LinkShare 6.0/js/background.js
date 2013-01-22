@@ -5,6 +5,7 @@ var curemail=null;
 var socket=null;
 var setuping=false;
 var channelToken=null;
+var login=false;
 
 console.log("background page");
 init();
@@ -58,6 +59,7 @@ function logoff()
   unreadCount=-1;
   curemail=null;
   localStorage.removeItem("groups");
+  login=false;
   closechannel();
   updateIcon();
 }
@@ -106,6 +108,7 @@ else
   if (curemail!=null)
         {
   setbuttonnone();
+  login=true;
   normal();
   console.log("pls login normal");
         }
@@ -146,26 +149,35 @@ function init()
 {
 
 console.log("init");
-if (curemail==null)
-{
+var oldcuremail=curemail;
+
 chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
 
 if (cookie!=null)
 {
     curemail=cookie.value;
 }
+else
+{
+    curemail=null;
+}
 
   if (curemail!=null)
         {
-          normal();
+	  	if (oldcuremail!=curemail)
+	  		{
+	  		normal();
+	  		updateIcon();
+	  		}
         }
         else
         {
+        logoff();
         setbuttonplslogin();
+        updateIcon();
         }
   });
-}
-updateIcon();
+
 }
 
 function recheck()
@@ -244,6 +256,7 @@ function extractJson(data)
    if(maxnumber==null)
     {
       maxnumber=MAXTABNUMBER;
+      localStorage["maxtabnumber"]=maxnumber;
     }
 
   $(data.FavURLShows).each(function(){ 
@@ -391,9 +404,12 @@ else
 
 function setupChannelHandler(data)
 {
-  var channelToken=data;
-  localStorage["channelToken"]=channelToken;
-  setupChannelCon(channelToken);
+	if (data)
+		{
+		  var channelToken=data;
+		  localStorage["channelToken"]=channelToken;
+		  setupChannelCon(channelToken);
+		}
 }
 
 function setupChannelCon(channelToken)
@@ -456,15 +472,23 @@ var isErrProcessing=false;
 
 function channelonError(err)
 {
-console.log("channel error code: "+ err.code);
-var code =err.code;
+if (  login)
+	{
+	console.log("channel error code: "+ err.code);
+	var code =err.code;
 
-if (code==401|| code==500)
-{
-    localStorage.removeItem("channelToken");
-}
+	if (code==401|| code==500)
+	{
+	    localStorage.removeItem("channelToken");
+	}
 
-channelErrHandler();
+	channelErrHandler();
+	}
+else
+	{
+	localStorage.removeItem("channelToken");
+	}
+
 
 }
 
@@ -721,6 +745,7 @@ function send(tab)
 		       if(toall==null)
 		        {
 		          toall=TOALL;
+		          localStorage["toall"]=toall;
 		        }
 		       
 		       if (!toall)
@@ -731,6 +756,7 @@ function send(tab)
 		       if(tome==null)
 		        {
 		    	   tome=TOME;
+		    	   localStorage["tome"]=tome;
 		        }
 		       
 		       chrome.tabs.executeScript(tabid,{file: 'js/SendMSG.js'});
