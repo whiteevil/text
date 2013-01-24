@@ -1,45 +1,63 @@
-﻿
-var hasfriends=false;
-var unreadCount=-1;
+﻿var unreadCount=-1;
 var curemail=null;
 var socket=null;
 var setuping=false;
 var channelToken=null;
 var login=false;
+var online=false;
 
 console.log("background page");
+
+
+restore_options();
 init();
+
+function restore_options() {
+  
+	   if(localStorage["maxtabnumber"]==null)
+	      localStorage["maxtabnumber"]=MAXTABNUMBER;
+	    
+
+	   if(!localStorage['tome']==null)
+		   localStorage['tome']=TOME;
+	   
+	   if(localStorage['toall']==null)
+		   localStorage['toall']=TOALL;
+}
 
 function updateIcon() {
 
-  if (unreadCount == -2) {
-    chrome.browserAction.setIcon({path:loginIcon});
-    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
-    chrome.browserAction.setBadgeText({text:""});
-  }
-  if (unreadCount == -1) {
-    chrome.browserAction.setIcon({path:notLoginIcon});
-    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
-    chrome.browserAction.setBadgeText({text:"?"});
-  } else {
-    chrome.browserAction.setIcon({path:loginIcon});
-    chrome.browserAction.setBadgeBackgroundColor({color:[208, 0, 24, 255]});
-    chrome.browserAction.setBadgeText({text:""});
-    if (unreadCount > 0){
-    chrome.browserAction.setBadgeText({text:unreadCount.toString()});
-  }
-  }
-}
-
-function setLogoffIcon()
-{
-  unreadCount=-1;
-  updateIcon();
+	if (login)
+	{
+	    chrome.browserAction.setIcon({path:notLoginIcon});
+	    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
+	    chrome.browserAction.setBadgeText({text:""});
+	}
+	else
+	{
+	    chrome.browserAction.setIcon({path:notLoginIcon});
+	    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
+	    chrome.browserAction.setBadgeText({text:"?"});
+	}
+	
+	if (!online)
+	{
+	    chrome.browserAction.setIcon({path:notLoginIcon});
+	    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
+	    chrome.browserAction.setBadgeText({text:""});
+	}
+	else		
+    if (unreadCount > 0)
+    {	
+    	chrome.browserAction.setIcon({path:loginIcon});
+    	chrome.browserAction.setBadgeBackgroundColor({color:[208, 0, 24, 255]});
+    	chrome.browserAction.setBadgeText({text:unreadCount.toString()});
+    }
 }
 
 function setOfflineIcon()
 {
-  unreadCount=-2;
+  online=false;
   updateIcon();
 }
 
@@ -55,7 +73,6 @@ if (request.action == 'logoff')
 function logoff()
 {
   console.log("background page log off");
-  hasfriends=false;
   unreadCount=-1;
   curemail=null;
   localStorage.removeItem("groups");
@@ -127,91 +144,53 @@ function normal()
   if (window.navigator.onLine==true) 
   { 
     console.log("normal");
-    unreadCount=0;
-    setbuttonsend();
-    checkFriends();
+    getMsgs();
+    getUnreadMsgCount();
     getGroups();
-    setupChannelTask();
-    if (hasfriends)
-    {
-      getMsgs();
-      getUnreadMsgCount();
-    }
+    setupChannel();
   }
   else
   {
-    disConnectHandler();
+	  channelErrHandler();
   }
       updateIcon();
 }
 
 function init()
 {
-
 console.log("init");
 var oldcuremail=curemail;
 
 chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
 
-if (cookie!=null)
-{
-    curemail=cookie.value;
-}
-else
-{
-    curemail=null;
-}
+	if (cookie!=null)
+	{
+	    curemail=cookie.value;
+	}
+	else
+	{
+	    curemail=null;
+	}
 
-  if (curemail!=null)
+	if (curemail!=null)
         {
-	  	if (oldcuremail!=curemail)
+	  		if(oldcuremail!=curemail)
 	  		{
-	  		normal();
-	  		updateIcon();
+		  		login=true;
+		  		online=true;
+		  		normal();
+		  		updateIcon();
 	  		}
         }
         else
         {
-        logoff();
-        setbuttonplslogin();
-        updateIcon();
+	        logoff();
+	        setbuttonplslogin();
+	        updateIcon();
         }
   });
 
 }
-
-function recheck()
-{
-
-console.log("recheck");
-
-chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
-
-if (cookie!=null)
-{
-    curemail=cookie.value;
-}
-else
-{
-    curemail=null;
-}
-  
-  if (curemail==null)
-        {
-    unreadCount=-1;
-    setbuttonplslogin();
-        }
-        else
-        {
-          if(!hasfriends)
-          checkFriends();
-        }
-  });
-
-updateIcon();
-
-}
-
 
 function getUnreadMsgCount()
 {
@@ -253,12 +232,6 @@ function extractJson(data)
   
   var maxnumber=localStorage["maxtabnumber"];
   
-   if(maxnumber==null)
-    {
-      maxnumber=MAXTABNUMBER;
-      localStorage["maxtabnumber"]=maxnumber;
-    }
-
   $(data.FavURLShows).each(function(){ 
 
     var sid=this.id;
@@ -285,32 +258,6 @@ function extractJson(data)
           
  }
 
-function checkFriends()
-{
-
-$.ajax({
-   type: "get",
-   url: hostadd+"friend/available",
-   dataType:"text",
-   async:false,
-   success: function(data)
-   {
-	    if(data)
-	    {
-	      if (data==="true")
-	      {
-	      hasfriends=true;
-	      }
-	     
-	     if (data==="false")
-	      {
-	      hasfriends=false;
-	      }     
-	    }
-   	}
-	});
-
-}
 
 function updateChannel(sid,channel)
 {
@@ -363,27 +310,9 @@ function getLocalSendTime(sendtime)
   return sendtime;
 }
 
-function setupChannelTask()
-{
-  ping();  
-  if (isGoogleCon) 
-  {
-      isGoogleCon=false;
-      setupChannel();
-  }
-  else
-  {
-    setOfflineIcon();
-    setNotifyPopup("discongoogle.html");
-    googleCheck=setInterval(connectGoogle,10000);
-  }
-  
-}
-
-function setupChannel()
+function getChannelToken()
 {
 
-setuping=true;
 channelToken=localStorage["channelToken"];
 
 if (channelToken==null)
@@ -393,37 +322,90 @@ if (channelToken==null)
    url: hostadd+"service/channel",
    datatype:"text",
    async:false,
-   success: setupChannelHandler
+   success: function(data){
+		if (data)
+		{
+		  channelToken=data;
+		  localStorage["channelToken"]=channelToken;
+		}	   
+   }
 });
 
 }
-else
-{
-  setupChannelCon(channelToken);
-}
 
-function setupChannelHandler(data)
-{
-	if (data)
-		{
-		  var channelToken=data;
-		  localStorage["channelToken"]=channelToken;
-		  setupChannelCon(channelToken);
-		}
 }
 
 function setupChannelCon(channelToken)
 {
-    var  channel = new goog.appengine.Channel(channelToken);
-    socket = channel.open();
-    socket.onopen = channelonOpened;
-    socket.onmessage = channelonMessage;
-    socket.onerror = channelonError;
-    socket.onclose = channelonClose;
-    setuping=false;
+	if(!setuping)
+	{
+	setuping=true;
+	isGoogleCon=false;		      
+	var  channel = new goog.appengine.Channel(channelToken);
+	socket = channel.open();
+	socket.onopen = channelonOpened;
+	socket.onmessage = channelonMessage;
+	socket.onerror = channelonError;
+	socket.onclose = channelonClose;
+	setuping=false;
+	}
 }
 
+function setupChannel()
+{
+	getChannelToken();
+	ping();  
+	if (isGoogleCon) 
+		{
+			setupChannelCon(channelToken);
+			setbuttonsend();
+		}
+		else
+		{
+			setOfflineIcon();
+			setNotifyPopup("discongoogle.html");
+			googleCheck=setInterval(connectGoogle,10000);
+		}		
 }
+
+
+function connectGoogle()
+{
+
+  console.log("retry connect google"+Date());
+
+  ping();
+
+  if (isGoogleCon) 
+  {
+    clearInterval(googleCheck);
+    removePopup();
+	setupChannelCon(channelToken);
+	setbuttonsend();
+	getMsgs();
+	getUnreadMsgCount();
+	updateIcon();
+    isGoogleCon=false;
+    isErrProcessing=false;
+    online=true;
+  }
+
+}
+
+var conCheck;
+
+function reConnect()
+{
+  console.log("retry connect");
+  if (window.navigator.onLine==true) 
+  {
+    clearInterval(conCheck);
+    removePopup();
+    setupChannel();
+    isErrProcessing=false;
+  }
+}
+
 
 function channelonOpened()
 {
@@ -435,36 +417,33 @@ function channelonOpened()
 
 function channelonMessage(msg)
 {
-  var msg=JSON.parse(msg.data);
+	var msg=JSON.parse(msg.data);
+	var FavURLShows=msg.FavURLShows;
+	var newfavurlnum=msg.newfavurlnum;
+	var newgroups=msg.groups;
 
-  var FavURLShows=msg.FavURLShows;
-  var newfavurlnum=msg.newfavurlnum;
-   var newgroups=msg.groups;
-
-if (FavURLShows)
-{
-  console.log("channel msg: FavURLs");
-  extractJson(msg);
-
-}
-else
-{
-  if (newfavurlnum)
-  {
-    console.log("channel msg: unreadmsg"+newfavurlnum);
-   unreadCount=parseInt(newfavurlnum);
-   updateIcon();
-  }
-  else
-  {
-    if (newgroups)
-    {
-    console.log("channel msg: newgroups");
-    saveGroups(newgroups);
-    }
-
-  }
-}
+	if (FavURLShows)
+	{
+	  console.log("channel msg: FavURLs");
+	  extractJson(msg);	
+	}
+	else
+	{
+	  if (newfavurlnum)
+	  {
+			console.log("channel msg: unreadmsg"+newfavurlnum);
+			unreadCount=parseInt(newfavurlnum);
+			updateIcon();
+	  }
+	  else
+	  {
+		    if (newgroups)
+		    {
+			    console.log("channel msg: newgroups");
+			    saveGroups(newgroups);
+		    }	
+	  }
+	}
 
 }
 
@@ -472,24 +451,22 @@ var isErrProcessing=false;
 
 function channelonError(err)
 {
-if (  login)
+if (login)
 	{
-	console.log("channel error code: "+ err.code);
-	var code =err.code;
-
-	if (code==401|| code==500)
-	{
-	    localStorage.removeItem("channelToken");
-	}
-
-	channelErrHandler();
+		console.log("channel error code: "+ err.code);
+		var code =err.code;
+	
+		if (code==401|| code==500)
+		{
+		    localStorage.removeItem("channelToken");
+		}
+	
+		channelErrHandler();
 	}
 else
 	{
-	localStorage.removeItem("channelToken");
+		localStorage.removeItem("channelToken");
 	}
-
-
 }
 
 function channelonClose()
@@ -499,44 +476,26 @@ function channelonClose()
 
 function channelErrHandler()
 {
-	if (window.navigator.onLine==true)
-	{ 
-		  if (!isErrProcessing)
-		  {
-		    console.log("channel setup error");
-		    isErrProcessing=true;
-		    closechannel();
 
-		  ping();
-
-		  if (isGoogleCon) 
-		  {
-		      isGoogleCon=false;
-		      resetupchannel();
-		  }
-		  else
-		  {
-		    setOfflineIcon();
-		    setNotifyPopup("discongoogle.html");
-		    googleCheck=setInterval(connectGoogle,10000);
-		  }
-
-		  }
+	if (!isErrProcessing)
+	{  
+		isErrProcessing=true;
+		if (window.navigator.onLine==true)
+		{ 
+			console.log("channel setup error");
+			closechannel();	
+			setupChannel();
+		}
+		else
+		{
+			console.log("network disconnect");
+			setOfflineIcon();  
+			closechannel();
+			setNotifyPopup("disconnect.html");
+			conCheck=setInterval(reConnect,10000);					  
+		}				
 	}
-	else
-	{
-		  if (!isErrProcessing)
-		  {
-		  isErrProcessing=true;
-		  console.log("network disconnect");
 
-		  setOfflineIcon();  
-
-		  closechannel();
-		  setNotifyPopup("disconnect.html");
-		  conCheck=setInterval(reConnect,10000);
-		  }
-	}
 }
 
 var googleCheck;
@@ -577,24 +536,6 @@ function removePopup()
    });
 }
 
-function connectGoogle()
-{
-
-  console.log("retry connect google");
-
-  ping();
-
-  if (isGoogleCon) 
-  {
-    clearInterval(googleCheck);
-    removePopup();
-    normal();
-    isErrProcessing=false;
-    isGoogleCon=false;
-  }
-
-}
-
 var isGoogleCon = false;
 
 function ping()
@@ -616,36 +557,12 @@ $.ajax({
 
 }
 
-function resetupchannel()
-{
-    if (!setuping)
-      {  
-        setupChannel();
-        console.log("resetup channel");  
-      }
-}
-
-var conCheck;
-
-function reConnect()
-{
-  console.log("retry connect");
-  if (window.navigator.onLine==true) 
-  {
-    clearInterval(conCheck);
-    removePopup();
-    normal();
-    isErrProcessing=false;
-  }
-}
-
-
 
 function closechannel()
 {
   if(socket)
   {
-  socket.close();  
+	  socket.close();  
   }
   
 }
@@ -662,7 +579,7 @@ Date.prototype.format = function(format)
 	"s+" : this.getSeconds(), //second 
 	"q+" : Math.floor((this.getMonth()+3)/3), //quarter 
 	"S" : this.getMilliseconds() //millisecond 
-	} 
+	}
 	
 	if(/(y+)/.test(format)) 
 	{ 
@@ -676,11 +593,37 @@ Date.prototype.format = function(format)
 		} 
 	} 
 	return format; 
-} 
+}
 
-function getSendGroups()
+function checkFriends()
 {
 
+$.ajax({
+   type: "get",
+   url: hostadd+"friend/available",
+   dataType:"text",
+    async:false,
+   success: function (data){
+	    if(data)
+	    {
+	      if (data==="true")
+	      {
+	      return true;
+	      }
+	     
+	     if (data==="false")
+	      {
+	      return false;
+	      }
+	    }
+   }
+});
+}
+
+var friends_num=0;
+function getSendGroups()
+{
+	friends_num=0;
 var groupsstring=localStorage["groups"];
 
 if (groupsstring!=null)
@@ -700,6 +643,7 @@ if (groupsstring!=null)
     {
         sendgroupids=sendgroupids+id+"|"; 
         j=j+1;
+        friends_num=friends_num+groups[i].num;
    }
    }
 
@@ -730,47 +674,56 @@ function send(tab)
 
    if (window.navigator.onLine==true) 
    { 
-	   recheck();
 	   var surl=tab.url;
 	   if (isValidURL(surl))
 	   {       	
-		   if (hasfriends)
-	      {
 		      var tabid=tab.id;
 		      var sendgroupids=undefined;
 		      var surltitle=tab.title;
 		      var siconurl=tab.favIconUrl;
 		      var toall=toBool(localStorage["toall"]);
-		      
-		       if(toall==null)
-		        {
-		          toall=TOALL;
-		          localStorage["toall"]=toall;
-		        }
-		       
+		      var hasSentFriends=false;
+		      		       
 		       if (!toall)
-		 	      sendgroupids=getSendGroups();
-		    	   
-		       var tome=toBool(localStorage["tome"]);
-		       
-		       if(tome==null)
-		        {
-		    	   tome=TOME;
-		    	   localStorage["tome"]=tome;
-		        }
-		       
-		       chrome.tabs.executeScript(tabid,{file: 'js/SendMSG.js'});
-		        
-		       if(!toall&&!tome&&sendgroupids.length<=0)
 		    	   {
-		    	   chrome.tabs.sendMessage(tabid, {"status": "noFriends"});
+		    	   sendgroupids=getSendGroups();
+		    	   if (friends_num>0)
+		    		   {
+		    		   hasSentFriends=true;
+		    		   }
+		    	   }
+		       
+		       if(toall)
+		    	   {
+		    	   if(checkFriends())
+		    		   hasSentFriends=true;
+		    	   }
+		    	   
+		       var tome=toBool(localStorage["tome"]);		       
+		       
+		       if (tome)
+		       hasSentFriends=true;
+		       
+	    	   chrome.tabs.executeScript(tabid,{file: 'js/SendMSG.js'},function (){
+			       if (!hasSentFriends)
+		    	   {
+			    	   if (toall)
+			    		   {
+			    		   chrome.tabs.sendMessage(tabid, {"status": "noFriends"});
+			    		   }
+			    	   else
+			    		   {
+			    		   if (sendgroupids.length>0)
+			    			   chrome.tabs.sendMessage(tabid, {"status": "noFriendsInGroup"});
+			    		   else
+			    			   chrome.tabs.sendMessage(tabid, {"status": "noGroupSelected"});	   
+			    		   }	    	   
 		    	   }
 		       else
 		    	   {
-
-			        sendURLRequest(tome,toall,sendgroupids,surl,tabid,surltitle,siconurl);
-		    	   }
-	      }
+		    	   sendURLRequest(tome,toall,sendgroupids,surl,tabid,surltitle,siconurl);
+		    	   }	    		   
+	    	   });
 	    }
 	    else
 	    {

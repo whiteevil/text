@@ -287,6 +287,7 @@ else
 			} \
 			.PKT_desktop #FLOAT_SEND_OVERLAY_LABEL\
 			{\
+				float:left;\
 				top: 0px;\
 				left: 0px;\
 				text-align:center;\
@@ -304,6 +305,7 @@ else
 					<a id="FLOAT_SEND_OVERLAY_LOGO" target=_blank href="http://'+PKT_D+'"><img src="http://'+PKT_D+'/logo.ico" ></a>\
 					</div>\
 					<div id="FLOAT_SEND_OVERLAY_LABEL"></div>\
+					<div><a id="FLOAT_SEND_BTN" class="FLOAT_SEND_BTN" target="_blank" href=""></a></div>\
 				</div>\
 			</div>\
 			';
@@ -520,11 +522,28 @@ else
 			}, true);
 			this.updateVisibleElements();
 		},
-		
+		noGroupSelected : function()
+		{
+			var self = this;
+			this.displayMessage("You must select at least select one group or mark the 'select to all My friends' checkbox!");
+			this.showButton('Close', null, function(){
+			self.hide();
+			}, true);
+			this.updateVisibleElements();
+		},
+		noFriendsInGroup : function()
+		{
+			var self = this;
+			this.displayMessage("There is no friends in your selected groups, please move friends to groups.");
+			this.showButton('Close', null, function(){
+			self.hide();
+			}, true);
+			this.updateVisibleElements();
+		},
 		noFriends : function()
 		{
 			var self = this;
-			this.displayMessage("You didn't select any friends to send, please change it in options page.");
+			this.displayMessage("Your friend list is empty, please invite your friends to regesiter in Tsahaylu");
 			this.showButton('Close', null, function(){
 			self.hide();
 			}, true);
@@ -722,6 +741,16 @@ else
 				// Tried to use a bookmarklet that was created for a different account
 				// TODO : Need to display X-Error in an alert
 				this.sendoverlay.noFriends();
+			}
+			else if(response.status == "noFriendsInGroup"){
+				// Tried to use a bookmarklet that was created for a different account
+				// TODO : Need to display X-Error in an alert
+				this.sendoverlay.noFriendsInGroup();
+			}
+			else if(response.status == "noGroupSelected"){
+				// Tried to use a bookmarklet that was created for a different account
+				// TODO : Need to display X-Error in an alert
+				this.sendoverlay.noGroupSelected();
 			}
 		},
 				

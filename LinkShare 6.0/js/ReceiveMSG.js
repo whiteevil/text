@@ -770,7 +770,7 @@ else
 		{	
 			var self = this;
 
-			this.overlay.displayMessage('Saving Tags…');
+			this.overlay.displayMessage('Saving Tags');
 			this.overlay.showButton(false);
 
 			this.savingTags = true;

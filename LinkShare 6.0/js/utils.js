@@ -10,24 +10,6 @@ var TOME=false;
 var notLoginIcon="images/gmail_not_logged_in.png";
 var loginIcon="images/gmail_logged_in.png";
 
-Array.prototype.remove=function(dx)
-{
-	if(isNaN(dx)||dx>this.length)
-	{
-		return false;
-	}
-
-	for(var i=0,n=0;i<this.length;i++)
-　　	{
-		if(this[i]!=this[dx])
-　　　　	{
-　　　　　　		this[n++]=this[i];
-　　　　	}
-　　	}
-
-　　this.length-=1;
-}
-
 var toBool = function(str) {
 	if ("false" === str) return false;
 	if ("true" === str) return true;
@@ -38,27 +20,24 @@ function getGroups()
 
 $.ajax({
    type: "get",
-   url: hostadd+"group",
+   url: hostadd+"group/info",
    dataType:"json",
     async:false,
-   success: getGroupsHandler
+   success: function(data)
+   {
+	    if(data)
+	    {
+	      var newgroups=data.GroupDTOs;
+	      saveGroups(newgroups);
+	    }
+   }
 });
-
-function getGroupsHandler(data)
-{
-    if(data)
-  {
-    var newgroups=data.groups;
-    saveGroups(newgroups);
-  }
-
-}
 
 }
 
 function saveGroups(newgroups)
 {
-
+	var group_datas=new Array();
   if (newgroups.length>0)
   {
     var groupsstr=localStorage["groups"];
@@ -69,10 +48,7 @@ function saveGroups(newgroups)
       for(var i=0;i<newgroups.length;i++)
       {
         var newid=newgroups[i].id;
-        var type=newgroups[i].type;
 
-        if (type=="SEND")
-        {
           for(var j=0;j<groups.length;j++)
           {
             var id=groups[j].id;
@@ -84,24 +60,25 @@ function saveGroups(newgroups)
               break;
             }
           }
-        }
-      }
-
-      for(var i=0;i<newgroups.length;i++)
-      {
-        var type=newgroups[i].type;
-
-        if (type!="SEND")
-        {
-          newgroups.remove(i);
-        }
-      }
+      }      
     }
     
+    for(var i=0;i<newgroups.length;i++)
+    {
+    	var gd=new group_data(newgroups[i].id,newgroups[i].name,newgroups[i].status,newgroups[i].des,newgroups[i].num);
+    	group_datas[i]=gd;
+    }
   }
-  localStorage["groups"]=JSON.stringify(newgroups);
   
+  localStorage["groups"]=JSON.stringify(group_datas);
 }
 
-
+function group_data(id,name,status,des,num)
+{
+this.id=id;
+this.name=name;
+this.status=status;
+this.des=des;
+this.num=num;
+}
 
