@@ -6,16 +6,14 @@
 "background" : { "page": "background.html" },
 "permissions": [
 "cookies",
-"http://*.google.com/", 
-"http://*/*", 
-"https://*/*",
- "tabs",
-"https://*.google.com/"
+"http://localhost/",
+"https://talkgadget.google.com/",
+ "tabs"
 ],
 "options_page": "options.html",
 "browser_action": 
 	{
-	"default_icon": "images/gmail_not_logged_in.png"
+	"default_icon": "images/logo.ico"
   	}
 ,
 "content_scripts":[
@@ -25,5 +23,5 @@
         "all_frames":true
     }
 ],
-"content_security_policy": "script-src 'self' 'unsafe-eval' https://talkgadget.google.com https://chromeevil2012.appspot.com; object-src 'self'"
+"content_security_policy": "script-src 'self' 'unsafe-eval' https://talkgadget.google.com; object-src 'self'"
 }

@@ -7,8 +7,8 @@ var MAXTABNUMBER=20;
 var TOALL=true;
 var TOME=false;
 
-var notLoginIcon="images/gmail_not_logged_in.png";
-var loginIcon="images/gmail_logged_in.png";
+var notLoginIcon="images/notlogin.png";
+var loginIcon="images/login.png";
 
 var toBool = function(str) {
 	if ("false" === str) return false;
