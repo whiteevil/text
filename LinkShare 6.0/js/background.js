@@ -8,7 +8,6 @@ var online=false;
 
 console.log("background page");
 
-
 restore_options();
 init();
 
@@ -27,6 +26,8 @@ function restore_options() {
 
 function updateIcon() {
 
+	console.log("updateIcon  "+getCurLocalTime());
+	
 	if (login)
 	{
 	    chrome.browserAction.setIcon({path:notLoginIcon});
@@ -57,6 +58,7 @@ function updateIcon() {
 
 function setOfflineIcon()
 {
+	console.log("setOfflineIcon"+getCurLocalTime());
   online=false;
   updateIcon();
 }
@@ -72,7 +74,8 @@ if (request.action == 'logoff')
 
 function logoff()
 {
-  console.log("background page log off");
+	
+  console.log("background page log off   "+getCurLocalTime());
   unreadCount=-1;
   curemail=null;
   localStorage.removeItem("groups");
@@ -84,7 +87,7 @@ function logoff()
 chrome.extension.onMessage.addListener(function(message, sender){
   if (message.action == 'relogin')
 {
-  console.log("content script");
+  console.log("content script  "+getCurLocalTime());
   init();
 }
 });
@@ -109,7 +112,7 @@ function setbuttonnone()
 
 function plslogin()
 {
- console.log("pls login");
+ console.log("pls login  "+getCurLocalTime());
 
 chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
 
@@ -127,14 +130,14 @@ else
   setbuttonnone();
   login=true;
   normal();
-  console.log("pls login normal");
+  console.log("pls login normal  "+getCurLocalTime());
         }
         else
         {
   chrome.tabs.create({url: authurl},null);
   unreadCount=-1;  
   updateIcon();
-  console.log("login page");
+  console.log("login page  "+getCurLocalTime());
         }
   });   
 }
@@ -143,7 +146,7 @@ function normal()
 {
   if (window.navigator.onLine==true) 
   { 
-    console.log("normal");
+    console.log("normal    "+getCurLocalTime());
     getMsgs();
     getUnreadMsgCount();
     getGroups();
@@ -158,7 +161,7 @@ function normal()
 
 function init()
 {
-console.log("init");
+console.log("init    "+getCurLocalTime());
 var oldcuremail=curemail;
 
 chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
@@ -194,25 +197,25 @@ chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
 
 function getUnreadMsgCount()
 {
-
-$.ajax({
-   type: "get",
-   url: hostadd+"favurl/newnum",
-   dataType:"json",
-   success:function(data){
-	   if (data.newfavurlnum)
-	   {
-	     unreadCount=parseInt(data.newfavurlnum);
-	     updateIcon();
-	   }
-	}	
+	console.log("getUnreadMsgCount    "+getCurLocalTime());
+	$.ajax({
+	   type: "get",
+	   url: hostadd+"favurl/newnum",
+	   dataType:"json",
+	   success:function(data){
+		   if (data.newfavurlnum)
+		   {
+		     unreadCount=parseInt(data.newfavurlnum);
+		     updateIcon();
+		   }
+		}	
 });
 
 }
 
 function getMsgs()
 {
-	
+	console.log("getMsgs    "+getCurLocalTime());
 	$.ajax({
 	type: "get",
     url:hostadd+"favurl/pending",
@@ -262,7 +265,7 @@ function extractJson(data)
 function updateChannel(sid,channel)
 {
 
-console.log("updatestatus");
+console.log("updatestatus    "+getCurLocalTime());
 
 $.ajax({
    type: "post",
@@ -313,6 +316,8 @@ function getLocalSendTime(sendtime)
 function getChannelToken()
 {
 
+	console.log("getChannelToken    "+getCurLocalTime());
+	
 channelToken=localStorage["channelToken"];
 
 if (channelToken==null)
@@ -337,6 +342,8 @@ if (channelToken==null)
 
 function setupChannelCon(channelToken)
 {
+	console.log("setupChannelCon     "+getCurLocalTime());
+	
 	if(!setuping)
 	{
 	setuping=true;
@@ -353,6 +360,7 @@ function setupChannelCon(channelToken)
 
 function setupChannel()
 {
+	console.log("setupChannel    "+getCurLocalTime());
 	getChannelToken();
 	ping();  
 	if (isGoogleCon) 
@@ -372,7 +380,7 @@ function setupChannel()
 function connectGoogle()
 {
 
-  console.log("retry connect google"+Date());
+  console.log("retry connect google    "+getCurLocalTime());
 
   ping();
 
@@ -396,7 +404,7 @@ var conCheck;
 
 function reConnect()
 {
-  console.log("retry connect");
+  console.log("retry connect    "+getCurLocalTime());
   if (window.navigator.onLine==true) 
   {
     clearInterval(conCheck);
@@ -409,7 +417,7 @@ function reConnect()
 
 function channelonOpened()
 {
-  console.log("channel opened");
+  console.log("channel opened    "+getCurLocalTime());
   isErrProcessing=false;
   isGoogleCon=false;
 }
@@ -424,14 +432,14 @@ function channelonMessage(msg)
 
 	if (FavURLShows)
 	{
-	  console.log("channel msg: FavURLs");
+	  console.log("channel msg: FavURLs   "+getCurLocalTime());
 	  extractJson(msg);	
 	}
 	else
 	{
 	  if (newfavurlnum)
 	  {
-			console.log("channel msg: unreadmsg"+newfavurlnum);
+			console.log("channel msg: unreadmsg    "+newfavurlnum+" "+getCurLocalTime());
 			unreadCount=parseInt(newfavurlnum);
 			updateIcon();
 	  }
@@ -439,7 +447,7 @@ function channelonMessage(msg)
 	  {
 		    if (newgroups)
 		    {
-			    console.log("channel msg: newgroups");
+			    console.log("channel msg: newgroups    "+getCurLocalTime());
 			    saveGroups(newgroups);
 		    }	
 	  }
@@ -453,7 +461,7 @@ function channelonError(err)
 {
 if (login)
 	{
-		console.log("channel error code: "+ err.code);
+		console.log("channel error code: "+ err.code+" "+getCurLocalTime());
 		var code =err.code;
 	
 		if (code==401|| code==500)
@@ -471,7 +479,7 @@ else
 
 function channelonClose()
 {
-  console.log("channel closed");
+  console.log("channel closed    "+getCurLocalTime());
 }
 
 function channelErrHandler()
@@ -482,13 +490,13 @@ function channelErrHandler()
 		isErrProcessing=true;
 		if (window.navigator.onLine==true)
 		{ 
-			console.log("channel setup error");
+			console.log("channel setup error    "+getCurLocalTime());
 			closechannel();	
 			setupChannel();
 		}
 		else
 		{
-			console.log("network disconnect");
+			console.log("network disconnect    "+getCurLocalTime());
 			setOfflineIcon();  
 			closechannel();
 			setNotifyPopup("disconnect.html");
@@ -502,6 +510,7 @@ var googleCheck;
 
 function setNotifyPopup(page)
 {
+	console.log("setNotifyPopup     "+getCurLocalTime());	
   setbuttonnone();
   chrome.tabs.query({}, function(tabs){
 	
@@ -521,6 +530,8 @@ function setNotifyPopup(page)
 
 function removePopup()
 {
+	console.log("removePopup    "+getCurLocalTime());
+	
     chrome.tabs.query({}, function(tabs){
 
     for (var i=0;i<tabs.length;i++)
@@ -540,8 +551,7 @@ var isGoogleCon = false;
 
 function ping()
 {
-
- console.log("ping google");
+console.log("ping google   "+getCurLocalTime());
   
 $.ajax({
   url: talkgadgeturl,
@@ -560,6 +570,8 @@ $.ajax({
 
 function closechannel()
 {
+	console.log("closeChannel    "+getCurLocalTime());
+	
   if(socket)
   {
 	  socket.close();  
@@ -567,39 +579,13 @@ function closechannel()
   
 }
 
-
-Date.prototype.format = function(format)
-{ 
-	var o = 
-	{ 
-	"M+" : this.getMonth()+1, //month 
-	"d+" : this.getDate(), //day 
-	"h+" : this.getHours(), //hour 
-	"m+" : this.getMinutes(), //minute 
-	"s+" : this.getSeconds(), //second 
-	"q+" : Math.floor((this.getMonth()+3)/3), //quarter 
-	"S" : this.getMilliseconds() //millisecond 
-	}
-	
-	if(/(y+)/.test(format)) 
-	{ 
-	format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
-	} 
-	
-	for(var k in o) { 
-		if(new RegExp("("+ k +")").test(format)) 
-		{ 
-		format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length)); 
-		} 
-	} 
-	return format; 
-}
-
 var hasfriend=false;
 
 function checkFriends()
 {
 
+	console.log("checkFriends    "+getCurLocalTime());
+	
 $.ajax({
    type: "get",
    url: hostadd+"friend/available",
@@ -625,6 +611,7 @@ $.ajax({
 var friends_num=0;
 function getSendGroups()
 {
+	console.log("getSendGroups    "+getCurLocalTime());
 	friends_num=0;
 var groupsstring=localStorage["groups"];
 
@@ -667,13 +654,21 @@ function getUTCSendTime()
   return sendtime;
 }
 
+
+function getCurLocalTime()
+{
+  var d = new Date();
+  var sendtime = d.format("yyyy-MM-dd hh:mm:ss"); 
+  return sendtime;
+}
+
 function isValidURL(s) {
     return (/^https?\:/i).test(s);
 }
 
 function send(tab)
 {
-
+	console.log("send    "+getCurLocalTime());
    if (window.navigator.onLine==true) 
    { 
 	   var surl=tab.url;
@@ -741,6 +736,7 @@ function send(tab)
 	function sendURLRequest(tome,toall,groupids,surl,tabid,urltitle,iconurl)
 	{
 	
+		console.log("sendURLRequest    "+getCurLocalTime());
 	 $.ajax({
 	    type: "post",
 	    data:{"tome":tome, "toall":toall,"groupids":groupids,"url":surl, "tabid":tabid, "sendtime":getUTCSendTime(), "urltitle":urltitle, "iconurl":iconurl},

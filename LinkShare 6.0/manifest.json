@@ -1,8 +1,14 @@
 ﻿{
 "manifest_version": 2,
-"name": "Chrome to Chrome",
+"name": "Tsahaylu: Share this Link",
 "version": "1.0",
-"description": "Chrome to Chrome",
+"description": "Tsahaylu",
+ "homepage_url": "http://www.tsahaylu.net",
+ "icons": {
+      "128": "images/tsahaylu-128.png",
+      "16": "images/tsahaylu-16.png",
+      "48": "images/tsahaylu-48.png"
+ },
 "background" : { "page": "background.html" },
 "permissions": [
 "cookies",
@@ -13,7 +19,7 @@
 "options_page": "options.html",
 "browser_action": 
 	{
-	"default_icon": "images/icon.jpg"
+	"default_icon": "images/tsahaylu-16.png"
   	}
 ,
 "content_scripts":[
