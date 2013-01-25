@@ -116,7 +116,7 @@ else
 			{\
 				height: 100%;\
 				padding-left: 7%;\
-				padding-left: 7%;\
+				padding-right: 7%;\
 			}\
 			\
 			.FLOAT_RECEIVE_BTN\
@@ -298,23 +298,33 @@ else
 				max-height:'+height+'px;\
 				height:expression_r(this.height>'+height+'?"'+height+'px":this.height);\
 			}\
+			#FLOAT_RECEIVE_INFO\
+			{\
+				float:left;\
+				padding-left: 10px;\
+				font-weight: '+labelWeight+';\
+			}\
 			#FLOAT_RECEIVE_NICKNAME\
 			{\
 				float:left;\
-				padding: 0px;\
+				padding-left: 10px;\
 				font-weight: '+labelWeight+';\
+				line-height:50px;\
 			}\
 			.PKT_desktop #FLOAT_RECEIVE_OVERLAY_LABEL\
 			{\
 				float:left;\
-				width: 20%;\
-				padding-left: 5px;\
+				width: 250px;\
+				padding-left: 10px;\
 				font-weight: '+labelWeight+';\
+				line-height:50px;\
 			}\
 			#FLOAT_RECEIVE_SENDTIME\
 			{\
-				float:left;\
-				width: 20%;\
+				width: 200px;\
+				padding-left: 10px;\
+				font-size: 12px;\
+				line-height:30px;\
 			}\
 			';
 			
@@ -328,9 +338,11 @@ else
 					<div  id="FLOAT_RECEIVE_USER">\
 					<a id="FLOAT_RECEIVE_USERLINK" target="_blank"><img id="FLOAT_RECEIVE_AVATARURL"></a>\
 					</div>\
+					<div id="FLOAT_RECEIVE_INFO">\
 					<div id="FLOAT_RECEIVE_NICKNAME"></div>\
 					<div id="FLOAT_RECEIVE_OVERLAY_LABEL"></div>\
 					<div id="FLOAT_RECEIVE_SENDTIME"></div>\
+					</div>\
 					<a id="FLOAT_RECEIVE_VL_BTN" class="FLOAT_RECEIVE_BTN" target="_blank" href=""></a>\
 					<a id="FLOAT_RECEIVE_BTN" class="FLOAT_RECEIVE_BTN" target="_blank" href=""></a>\
 				</div>\
@@ -558,8 +570,6 @@ else
 			this.showButton('Close', null, function(){
 			self.hide();
 			}, true);
-			this.showViewListButton('View List', 'http://' + PKT_D + '/home.html');					
-
 			
 			this.updateVisibleElements();
 		},

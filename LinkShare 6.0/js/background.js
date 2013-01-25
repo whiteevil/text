@@ -595,6 +595,8 @@ Date.prototype.format = function(format)
 	return format; 
 }
 
+var hasfriend=false;
+
 function checkFriends()
 {
 
@@ -602,18 +604,18 @@ $.ajax({
    type: "get",
    url: hostadd+"friend/available",
    dataType:"text",
-    async:false,
+   async:false,
    success: function (data){
 	    if(data)
 	    {
 	      if (data==="true")
 	      {
-	      return true;
+	    	  hasfriend=true;
 	      }
 	     
 	     if (data==="false")
 	      {
-	      return false;
+	    	 hasfriend=false;
 	      }
 	    }
    }
@@ -695,7 +697,8 @@ function send(tab)
 		       
 		       if(toall)
 		    	   {
-		    	   if(checkFriends())
+		    	   checkFriends();		    	   
+		    	   if(hasfriend)
 		    		   hasSentFriends=true;
 		    	   }
 		    	   
