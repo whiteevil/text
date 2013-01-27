@@ -342,10 +342,9 @@ if (channelToken==null)
 
 function setupChannelCon(channelToken)
 {
-	console.log("setupChannelCon     "+getCurLocalTime());
-	
-	if(!setuping)
+	if (!setuping)
 	{
+	console.log("setupChannelCon     "+getCurLocalTime());		
 	setuping=true;
 	isGoogleCon=false;		      
 	var  channel = new goog.appengine.Channel(channelToken);
@@ -354,7 +353,6 @@ function setupChannelCon(channelToken)
 	socket.onmessage = channelonMessage;
 	socket.onerror = channelonError;
 	socket.onclose = channelonClose;
-	setuping=false;
 	}
 }
 
@@ -365,7 +363,10 @@ function setupChannel()
 	ping();  
 	if (isGoogleCon) 
 		{
-			setupChannelCon(channelToken);
+			channelOpened=false;
+			while (!channelOpened)
+				setupChannelCon(channelToken);
+
 			setbuttonsend();
 		}
 		else
@@ -388,7 +389,9 @@ function connectGoogle()
   {
     clearInterval(googleCheck);
     removePopup();
-	setupChannelCon(channelToken);
+    channelOpened=false;
+	while (!channelOpened)
+		setupChannelCon(channelToken);
 	setbuttonsend();
 	getMsgs();
 	getUnreadMsgCount();
@@ -414,10 +417,12 @@ function reConnect()
   }
 }
 
-
+var channelOpened=false;
 function channelonOpened()
 {
   console.log("channel opened    "+getCurLocalTime());
+  channelOpened=true;
+  setuping=false;
   isErrProcessing=false;
   isGoogleCon=false;
 }
@@ -459,6 +464,7 @@ var isErrProcessing=false;
 
 function channelonError(err)
 {
+	setuping=false;
 if (login)
 	{
 		console.log("channel error code: "+ err.code+" "+getCurLocalTime());
@@ -479,6 +485,7 @@ else
 
 function channelonClose()
 {
+	setuping=false;
   console.log("channel closed    "+getCurLocalTime());
 }
 
