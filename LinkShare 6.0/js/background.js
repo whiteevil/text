@@ -5,6 +5,7 @@ var setuping=false;
 var channelToken=null;
 var login=false;
 var online=false;
+var setupChannelConTask=null;
 
 console.log("background page");
 
@@ -29,38 +30,41 @@ function updateIcon() {
 	console.log("updateIcon  "+getCurLocalTime());
 	
 	if (login)
-	{
-	    chrome.browserAction.setIcon({path:notLoginIcon});
-	    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
-	    chrome.browserAction.setBadgeText({text:""});
-	}
+		{
+			if(online)
+				{
+		    	chrome.browserAction.setIcon({path:loginIcon});
+		        chrome.browserAction.setBadgeBackgroundColor({color:[208, 0, 24, 255]});
+			    if (unreadCount > 0)
+			    	{
+			        chrome.browserAction.setBadgeText({text:unreadCount.toString()});
+			    	}
+			    else
+			    	{
+				    chrome.browserAction.setBadgeText({text:""});
+			    	}
+				}
+			else
+				{
+		    	chrome.browserAction.setIcon({path:notLoginIcon});
+		        chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
+			    chrome.browserAction.setBadgeText({text:""});
+				}
+		}
 	else
-	{
-	    chrome.browserAction.setIcon({path:notLoginIcon});
-	    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
-	    chrome.browserAction.setBadgeText({text:"?"});
-	}
+		{
+	    	chrome.browserAction.setIcon({path:notLoginIcon});
+	    	chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
+	    	chrome.browserAction.setBadgeText({text:"?"});
+		}
 	
-	if (!online)
-	{
-	    chrome.browserAction.setIcon({path:notLoginIcon});
-	    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
-	    chrome.browserAction.setBadgeText({text:""});
-	}
-	else		
-    if (unreadCount > 0)
-    {	
-    	chrome.browserAction.setIcon({path:loginIcon});
-    	chrome.browserAction.setBadgeBackgroundColor({color:[208, 0, 24, 255]});
-    	chrome.browserAction.setBadgeText({text:unreadCount.toString()});
-    }
 }
 
 function setOfflineIcon()
 {
 	console.log("setOfflineIcon"+getCurLocalTime());
-  online=false;
-  updateIcon();
+	online=false;
+	updateIcon();
 }
 
 chrome.extension.onRequest.addListener(onRequest); 
@@ -340,20 +344,28 @@ if (channelToken==null)
 
 }
 
-function setupChannelCon(channelToken)
+function setupChannelCon()
 {
-	if (!setuping)
+	if (!channelOpened)
 	{
-	console.log("setupChannelCon     "+getCurLocalTime());		
-	setuping=true;
-	isGoogleCon=false;		      
-	var  channel = new goog.appengine.Channel(channelToken);
-	socket = channel.open();
-	socket.onopen = channelonOpened;
-	socket.onmessage = channelonMessage;
-	socket.onerror = channelonError;
-	socket.onclose = channelonClose;
+		if (!setuping)
+		{
+		console.log("setupChannelCon     "+getCurLocalTime());		
+		setuping=true;
+		isGoogleCon=false;		      
+		var  channel = new goog.appengine.Channel(channelToken);
+		socket = channel.open();
+		socket.onopen = channelonOpened;
+		socket.onmessage = channelonMessage;
+		socket.onerror = channelonError;
+		socket.onclose = channelonClose;
+		}
 	}
+else
+	{
+    	clearInterval(googleCheck);
+	}
+	
 }
 
 function setupChannel()
@@ -363,10 +375,8 @@ function setupChannel()
 	ping();  
 	if (isGoogleCon) 
 		{
-			channelOpened=false;
-			while (!channelOpened)
-				setupChannelCon(channelToken);
-
+			channelOpened=false;		
+			setupChannelConTask=setInterval(setupChannelCon(),10000);	
 			setbuttonsend();
 		}
 		else
@@ -376,7 +386,6 @@ function setupChannel()
 			googleCheck=setInterval(connectGoogle,10000);
 		}		
 }
-
 
 function connectGoogle()
 {
@@ -389,16 +398,16 @@ function connectGoogle()
   {
     clearInterval(googleCheck);
     removePopup();
-    channelOpened=false;
-	while (!channelOpened)
-		setupChannelCon(channelToken);
+    channelOpened=false;    
+	setupChannelConTask=setInterval(setupChannelCon(),10000);
+	
+    online=true;
 	setbuttonsend();
 	getMsgs();
 	getUnreadMsgCount();
 	updateIcon();
     isGoogleCon=false;
     isErrProcessing=false;
-    online=true;
   }
 
 }
@@ -412,6 +421,11 @@ function reConnect()
   {
     clearInterval(conCheck);
     removePopup();
+    
+    online=true;
+	getMsgs();
+	getUnreadMsgCount();
+	updateIcon();
     setupChannel();
     isErrProcessing=false;
   }

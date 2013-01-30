@@ -19,12 +19,12 @@
 "options_page": "options.html",
 "browser_action": 
 	{
-	"default_icon": "images/tsahaylu-16.png"
+	"default_icon": "images/notlogin.png"
   	}
 ,
 "content_scripts":[
     {
-        "matches":["http://localhost:8888/login.html","http://localhost:8888/home.html"],
+        "matches":["http://localhost:8888/new.html","http://localhost:8888/home.html"],
         "js":["js/content.js"],    
         "all_frames":true
     }

@@ -9,20 +9,28 @@
 	<body>
 		<div id="content">
 			<div id="header">
-				<img src="/images/icon.jpg" height=100px  width=100px>
+				<img src="/images/logo.png">
 			</div>
 			<div id="content-inner-container">
 				<h2>OPTIONS</h2>
-				<div >				
+				<div class="setting">				
 					<h3>Current User: </h3>
 					<ul class="user_info">
-						<li><a id="user_link" target="_blank"><img id="user_avatar" height=50px  width=50px title="Go to User page"/></a></li>
-						<li><span>Email:</span><label id="email"></label></li>
-						<li><span>Nickname:</span><label  id="nickname"></label></li>
-						<li><a href="###" id="signout">Signout</a></li>
+						<li>
+							<a id="user_link" target="_blank"><img id="user_avatar" title="Go to User page"/></a>
+						</li>
+						<li>
+							<label id="email"></label>
+						</li>
+						<li>
+						<label  id="nickname"></label>
+						</li>	
+						<li>
+							<a href="###" id="signout">Signout</a>
+						</li>
 					</ul>
 				</div>
-				<div>
+				<div class="setting">
 					<h3>General:</h3>
 					<ul>
 						<li><span class="fieldlabel" >Max tab number:</span><input type="text" id="maxtabnumber" tabindex="1"></li>
@@ -30,7 +38,7 @@
 						<li><input type="checkbox" class="toall_check" title="Send link to all your friends!" /><label >Send To All My Friends</label></li>				
 					</ul>
 				</div>
-				<div>
+				<div class="setting">
 					<h3>Select Send Groups:</h3>
                 	<ul id="group_box">
 						
