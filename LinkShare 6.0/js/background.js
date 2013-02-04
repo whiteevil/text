@@ -118,7 +118,7 @@ function plslogin()
 {
  console.log("pls login  "+getCurLocalTime());
 
-chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
+chrome.cookies.get({"name":cookiename, "url":cookieDomain}, function(cookie){
 
 if (cookie!=null)
 {
@@ -168,7 +168,7 @@ function init()
 console.log("init    "+getCurLocalTime());
 var oldcuremail=curemail;
 
-chrome.cookies.get({name:cookiename, url:cookieDomain,}, function(cookie){
+chrome.cookies.get({"name":cookiename, "url":cookieDomain}, function(cookie){
 
 	if (cookie!=null)
 	{
@@ -298,7 +298,7 @@ $.ajax({
 	     
 	     chrome.tabs.executeScript(tab.id,{file: 'js/ReceiveMSG.js'},function()
 	     {
-	     chrome.tabs.sendMessage(tab.id, {"status": "success","nickname":nickname,"sendtime":sendtime,"avatarurl":avatarurl,"userid":userid,});
+	     chrome.tabs.sendMessage(tab.id, {"status": "success","nickname":nickname,"sendtime":sendtime,"avatarurl":avatarurl,"userid":userid});
 	       });
 	       
 	     });

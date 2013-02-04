@@ -116,7 +116,6 @@ else
 			{\
 				height: 100%;\
 				padding-left: 7%;\
-				padding-right: 7%;\
 			}\
 			\
 			.FLOAT_RECEIVE_BTN\
@@ -154,6 +153,8 @@ else
 				-moz-transform:translate3d(0px,0px,0px);\
 				-o-transform:translate3d(0px,0px,0px);\
 				-webkit-transform:translate3d(0px,0px,0px);\
+				cursor:pointer;\
+				margin-right:30px;\
 			}\
 			.FLOAT_RECEIVE_BTN:hover\
 			{\
@@ -285,18 +286,26 @@ else
 				max-height:'+height+'px;\
 				height:expression_r(this.height>'+height+'?"'+height+'px":this.height);\
 			}\
+			#FLOAT_RECEIVE_USERLINK img\
+			{\
+				width:58px;\
+				height:58px;\
+			}\
+			#FLOAT_RECEIVE_USERLINK\
+			{\
+				width:58px;\
+				height:58px;\
+				padding:4px;\
+				border:1px #e3e3e3 solid;\
+				border-radius:3px;\
+				background:#fff;\
+				display:inline-block;\
+			}\
 			#FLOAT_RECEIVE_USER\
 			{\
-				 float:left; \
-			}\
-			#FLOAT_RECEIVE_USER img\
-			{\
-				border=none;\
-				text-align:"center";\
-				max-width: '+height+'px;\
-				width:expression_r(this.width>'+height+'?"'+height+'px":this.width);\
-				max-height:'+height+'px;\
-				height:expression_r(this.height>'+height+'?"'+height+'px":this.height);\
+				margin: 0 auto;\
+				float:left; \
+				padding-top:6px;\
 			}\
 			#FLOAT_RECEIVE_INFO\
 			{\
@@ -309,22 +318,12 @@ else
 				float:left;\
 				padding-left: 10px;\
 				font-weight: '+labelWeight+';\
-				line-height:50px;\
 			}\
 			.PKT_desktop #FLOAT_RECEIVE_OVERLAY_LABEL\
 			{\
 				float:left;\
-				width: 250px;\
 				padding-left: 10px;\
 				font-weight: '+labelWeight+';\
-				line-height:50px;\
-			}\
-			#FLOAT_RECEIVE_SENDTIME\
-			{\
-				width: 200px;\
-				padding-left: 10px;\
-				font-size: 12px;\
-				line-height:30px;\
 			}\
 			';
 			
@@ -341,9 +340,7 @@ else
 					<div id="FLOAT_RECEIVE_INFO">\
 					<div id="FLOAT_RECEIVE_NICKNAME"></div>\
 					<div id="FLOAT_RECEIVE_OVERLAY_LABEL"></div>\
-					<div id="FLOAT_RECEIVE_SENDTIME"></div>\
 					</div>\
-					<a id="FLOAT_RECEIVE_VL_BTN" class="FLOAT_RECEIVE_BTN" target="_blank" href=""></a>\
 					<a id="FLOAT_RECEIVE_BTN" class="FLOAT_RECEIVE_BTN" target="_blank" href=""></a>\
 				</div>\
 			</div>\
@@ -408,8 +405,7 @@ else
 				}else if(width > shortWidth && width <= maxWidth){
 					var button = document.getElementById("FLOAT_RECEIVE_BTN");
 					var buttonWidth = button.offsetWidth + parseInt(document.defaultView.getComputedStyle(button, null).marginLeft);
-					var viewListButton = document.getElementById("FLOAT_RECEIVE_VL_BTN");
-					var viewListButtonWidth = viewListButton.offsetWidth + parseInt(document.defaultView.getComputedStyle(viewListButton, null).marginLeft);
+					
 					var newWidth = (width * 0.80) - buttonWidth - viewListButtonWidth - 5;
 					textInput.style.width = "";
 				}else{
@@ -417,8 +413,6 @@ else
 				}
 			}
 
-			var viewListButton = document.getElementById("FLOAT_RECEIVE_VL_BTN");
-			viewListButton.style.display = (width < shortWidth && isShowingTagsEditor) ? "none": "block";
 		},
 		
 		displayMessage : function(msg)
@@ -459,8 +453,7 @@ else
 		{
 			if(this.isMobile) return;
 
-			var btn = document.getElementById('FLOAT_RECEIVE_VL_BTN');
-			btn.style.visibility = label ? 'visible' : 'hidden';
+
 
 			var otherBtn = document.getElementById("FLOAT_RECEIVE_BTN");
 			
@@ -552,20 +545,13 @@ else
 
 		},
 
-		displaySendtime : function(sendtime)
-		{
-			//this.toggleClass( document.getElementById('sendtimediv'), 'PKT_SHOW_INPUT', false);
-			document.getElementById('FLOAT_RECEIVE_SENDTIME').innerHTML = sendtime;
-		},
-
-
 		//
 		recieved : function(nickname,userid,avatarurl,sendtime)
 		{
 			var self = this;
-			this.displayMessage('sent this link to you!');
+			this.displayMessage('sent this link to you, '+sendtime+'.');
 			this.displayUser(nickname,userid,avatarurl);
-			this.displaySendtime(sendtime);
+
 			//this.showButton('Add Tags', null, function(){self.openTagsEditor();}, true);
 			this.showButton('Close', null, function(){
 			self.hide();

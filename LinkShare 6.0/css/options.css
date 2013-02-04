@@ -12,7 +12,7 @@ h2 {
 h3 {
 	float:left;
 	font-size: 16px;
-	width:160px;
+	width:180px;
 }
 ul {
 	float:left;
@@ -28,6 +28,23 @@ a:hover {
 
 /* header */
 
+#user_link img
+{
+	width:58px;
+	height:58px;
+}
+#user_link
+{
+	width:58px;
+	height:58px;
+	padding:4px;
+	border:1px #e3e3e3 solid;
+	border-radius:3px;
+	background:#fff;
+	display:inline-block;
+	text-decoration:none;
+}
+			
 #header {
 	height:50px;
 	margin-bottom: 25px;
@@ -62,8 +79,7 @@ a:hover {
 	color: #777777;
 	font-size: 18pt;
 }
-
-
+.clear{ clear:both}
 li{
 	list-style:none;
 	margin:0 10px 10px 0;
@@ -78,16 +94,7 @@ li{
 .setting{
 	float:left;
 	border-top: 1px solid #0BC49C;
-	
-}
-.setting img{
-	height:58px;
-	width:58px;
-	padding:4px;
-	border:1px #e3e3e3 solid;
-	border-radius:3px;
-	background:#fff;
-	display:inline-block;
+	width:100%;
 }
 span{
 width:100px;

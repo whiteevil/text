@@ -293,7 +293,7 @@ else
 				text-align:center;\
 				width: 80%;\
 				padding: 0px;\
-				font-weight: '+labelWeight+';\
+				font-weight:bold;\
 			}\
 			';
 			
