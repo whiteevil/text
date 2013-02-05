@@ -281,10 +281,7 @@ else
 			#FLOAT_RECEIVE_OVERLAY_LOGO img\
 			{\
 				border=none;\
-				max-width: '+height+'px;\
-				width:expression_r(this.width>'+height+'?"'+height+'px":this.width);\
-				max-height:'+height+'px;\
-				height:expression_r(this.height>'+height+'?"'+height+'px":this.height);\
+				height:100%;\
 			}\
 			#FLOAT_RECEIVE_USERLINK img\
 			{\
@@ -332,7 +329,7 @@ else
 			<div id="FLOAT_RECEIVE_OVERLAY">\
 				<div id="FLOAT_RECEIVE_OVERLAY_WRAPPER" class="PKT_'+(this.isMobile?"mobile":"desktop")+'">\
 					<div id="FLOAT_RECEIVE_LOGO">\
-					<a id="FLOAT_RECEIVE_OVERLAY_LOGO" target=_blank href="http://'+PKT_D+'"><img src="http://'+PKT_D+'/logo.ico" ></a>\
+					<a id="FLOAT_RECEIVE_OVERLAY_LOGO" target=_blank href="http://'+PKT_D+'"><img src="http://'+PKT_D+'/images/logo_col.png" ></a>\
 					</div>\
 					<div  id="FLOAT_RECEIVE_USER">\
 					<a id="FLOAT_RECEIVE_USERLINK" target="_blank"><img id="FLOAT_RECEIVE_AVATARURL"></a>\

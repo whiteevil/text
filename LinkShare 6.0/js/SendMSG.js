@@ -280,10 +280,7 @@ else
 			#FLOAT_SEND_LOGO img\
 			{\
 				border=none;\
-				max-width: '+height+'px;\
-				width:expression_r(this.width>'+height+'?"'+height+'px":this.width);\
-				max-height:'+height+'px;\
-				height:expression_r(this.height>'+height+'?"'+height+'px":this.height);\
+				height:100%;\
 			} \
 			.PKT_desktop #FLOAT_SEND_OVERLAY_LABEL\
 			{\
@@ -302,7 +299,7 @@ else
 			<div id="FLOAT_SEND_OVERLAY">\
 				<div id="FLOAT_SEND_OVERLAY_WRAPPER" class="PKT_'+(this.isMobile?"mobile":"desktop")+'">\
 					<div id="FLOAT_SEND_LOGO">\
-					<a id="FLOAT_SEND_OVERLAY_LOGO" target=_blank href="http://'+PKT_D+'"><img src="http://'+PKT_D+'/logo.ico" ></a>\
+					<a id="FLOAT_SEND_OVERLAY_LOGO" target=_blank href="http://'+PKT_D+'"><img src="http://'+PKT_D+'/images/logo_line.png" ></a>\
 					</div>\
 					<div id="FLOAT_SEND_OVERLAY_LABEL"></div>\
 					<div><a id="FLOAT_SEND_BTN" class="FLOAT_SEND_BTN" target="_blank" href=""></a></div>\

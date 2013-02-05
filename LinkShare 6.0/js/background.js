@@ -18,7 +18,7 @@ function restore_options() {
 	      localStorage["maxtabnumber"]=MAXTABNUMBER;
 	    
 
-	   if(!localStorage['tome']==null)
+	   if(localStorage['tome']==null)
 		   localStorage['tome']=TOME;
 	   
 	   if(localStorage['toall']==null)
