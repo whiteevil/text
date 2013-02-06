@@ -288,7 +288,7 @@ $.ajax({
 	    var avatarurl=json.avatarURL;
 
 	   if (avatarurl==null)
-	     avatarurl=host+'images/mystery-man.jpg';
+	     avatarurl=hostadd+'images/mystery-man.jpg';
 
 	   var userid=json.fromid;
 
